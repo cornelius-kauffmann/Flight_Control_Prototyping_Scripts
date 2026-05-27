@@ -92,7 +92,7 @@ def compute_fit(u, y, t, dt, n_poles, n_zeros, delay, f_hp, f_lp, method="RLS"):
         sys_id.f_lp = f_lp
         est = sys_id.fit(u.reshape(-1, 1), y.reshape(-1, 1), method=method)
         Gz = ctrl.TransferFunction(
-            est.G_.num_list[0][0], est.G_.den_list[0][0][: n_poles + 1], dt
+            est.G_.num[0][0], est.G_.den[0][0][: n_poles + 1], dt
         )
         u_detrended = detrend(u)
         u_delayed = np.concatenate(
@@ -785,8 +785,8 @@ class Window(QDialog):
             method=self.id_method_combo.currentText(),
         )
 
-        self.num = est.G_.num_list[0][0]
-        self.den = est.G_.den_list[0][0][0 : n + 1]
+        self.num = est.G_.num[0][0]
+        self.den = est.G_.den[0][0][0 : n + 1]
         self.Gz = ctrl.TransferFunction(self.num, self.den, self.dt)
 
         num_coeffs = self.num
@@ -1097,7 +1097,7 @@ class Window(QDialog):
         mask = t < self.kDisturbanceTime
         try:
             self.measured_step_info = ctrl.step_info(
-                y[mask], timepts=t[mask], final_output=1.0
+                y[mask], T=t[mask], yfinal=1.0
             )
         except (IndexError, ValueError):
             self.measured_step_info = None
